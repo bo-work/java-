@@ -1,5 +1,7 @@
 ////java开发接口利用http协议传输数据
+////第二部分为http交互方式
 
+一、
 这个接口主要用来登录，java服务器提供一个接口，移动设备客户端（android和ios）能通过这个接口把用户名和密码之类的东东传过来到服务器验证，然后服务器返回数据告诉客户端是否登录成功。比如0是成功，1是失败。中间数据的传递都是通过http协议完成.这个接口该怎么写？
 
 以上是百度中搜到的问题，得到了回复。重新整理总结一下：
@@ -139,3 +141,127 @@ public class TestTransfers extends HttpServlet {
        out.close();
     }
 }
+
+/////////////-------------------------------------------------------------------------------------------///////////
+二、
+ 1、使用HTTP的Get方式读取网络数据
+
+class ReadByGet extends Thread{
+    @Override
+    public void run(){
+        URL url = new URL("网址");//如果有参数，在网址中携带参数
+        URLConnection conn = url.openConnection();
+        InputStream is = conn.getInputStream();
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        
+        String line;
+        StringBuilder builder = new StringBuilder();
+        while((line=br.readLine())!=null){
+              builder.append(line);
+        }
+        br.close();
+        isr.cloae();
+        is.close();
+        
+        System.out.println(builder.toString);
+    }
+}
+public static void main(String[] args){
+    new ReadByGet().start();
+} 
+
+
+
+      2、使用HTTP的Post方式与网络交互通信  
+
+
+Class ReadByPost extends Thread{
+     @override
+     public void run(){
+         URL url = new URL("网址");
+         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+         conn.addRequestProperty("encoding","UTF-8");
+         conn.setDoInput(true);
+         Conn.setDoOutput(true);
+         conn.setRequestMethod("POST");
+         
+         OutputStream os = conn.getOutputStream();
+         OutputStreamWriter osw = new OutputStreamWriter(os);
+         BufferedWriter bw = new BufferedWriter(osw);
+          
+         bw.write("向服务器传递的参数");
+         bw.flush();
+         
+         InputStream is = conn.getInputStream();
+         InputStreamReader isr = new InputStreamReader(is);
+         BufferedReader br = new BufferedReader(isr);         
+         String line;
+         StringBuilder builder = new StringBuilder();
+         while((line = br.readLine())!=null){
+              builder.append(line);
+         }
+         //关闭资源
+         System.out.println(builder.toString);
+     }
+}
+public static void main(){
+     new ReadByPost().start();
+}
+
+
+      
+      3、使用HttpClient进行Get方式通信
+            apache有一个HttpClient包
+
+    class Get extends Thread{
+       
+        HttpClient client = HttpClients.createDefault();
+        @Override
+        public void run(){
+           
+             HttpGet get = new HttpGet("http://www.baidu.com");
+             
+             HttpResponse response = client.execute(get);
+             HttpEntity entity = response.getEntity();
+             String result = EntityUtils.toString(entity,"UTF-8");
+             
+             System.out.println(result);
+             
+        }
+    }
+    public static void main(String[] args){
+        new Get().start();
+    }
+
+    复制代码
+
+
+          4、使用HttpClient进行Post方式通信
+
+ 
+复制代码
+
+class Post extends Thread{
+    HttpClient cilent = HttpClients.CreateDefault();
+    @Override
+    public void run(){
+        HttpPost post = new HttpPost("网址");
+        //设置要传的参数
+        List<BasicNameValuePair> parameters = new ArratList();
+        parameters.add(new BasicNameValuePair("key","value"));
+        
+        post.setEntity(new UrlEncodeFormEntity(parameters,"UTF-8"));
+        HttpResponse response = client.execute(post);
+        HttpEntity entity = response.getEntity();
+        String result = EntityUtils.roString(entity,"UTF-8");
+        
+        System.out.println(result);
+        
+    }
+}
+main(){
+    new Post().start();
+}
+
+
