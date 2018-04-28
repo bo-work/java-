@@ -1,0 +1,141 @@
+////java开发接口利用http协议传输数据
+
+这个接口主要用来登录，java服务器提供一个接口，移动设备客户端（android和ios）能通过这个接口把用户名和密码之类的东东传过来到服务器验证，然后服务器返回数据告诉客户端是否登录成功。比如0是成功，1是失败。中间数据的传递都是通过http协议完成.这个接口该怎么写？
+
+以上是百度中搜到的问题，得到了回复。重新整理总结一下：
+
+接口执行过程是这样的：以客户端登录为例——从客户端界面得到用户名，密码。传到后台（解释下此处所说的后台，一个程序一般是MVC模式，V视图层，C控制层），就是说从视图层得到数据传输到控制层，控制层中有如下代码，请看1.1。再由控制层通过http协议向服务器发送数据，代码中接收报文的地址就是服务器地址，其中“TestTransfers” 是服务器web.xml中配置的Servlet
+<servlet>
+    <display-name>TestTransfers</display-name>
+    <servlet-name>TestTransfers</servlet-name>
+    <servlet-class>com.servlet.TestTransfers</servlet-class>
+    <!-- 启动优先级 -->
+    <load-on-startup>4</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TestTransfers</servlet-name>
+    <url-pattern>/TestTransfers</url-pattern>
+
+  </servlet-mapping>
+
+1.1客户端请求程序代码：
+public void sendMessage() throws Exception {
+    System.out.println("调用servlet开始=================");
+    StringBuffer sendStr = new StringBuffer();
+    sendStr.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    sendStr.append("<report_data>");
+    sendStr.append("<request_req>953943547334</request_req>");
+    sendStr.append("<request_time>2012040211394324</request_time>");
+    sendStr.append("<request_param>");
+    sendStr.append("<query_month>201203</query_month>");
+    sendStr.append("</request_param>");
+    sendStr.append("</report_data>");
+    BufferedReader reader = null;
+    try {
+        String strMessage = "";
+        StringBuffer buffer = new StringBuffer();
+        // 接报文的地址
+        URL uploadServlet = new URL(
+               "http://localhost:9090/TestTransfers");
+        HttpURLConnection servletConnection = (HttpURLConnection) uploadServlet
+               .openConnection();
+        // 设置连接参数
+        servletConnection.setRequestMethod("POST");
+        servletConnection.setDoOutput(true);
+        servletConnection.setDoInput(true);
+        servletConnection.setAllowUserInteraction(true);
+        // 开启流，写入XML数据
+        OutputStream output = servletConnection.getOutputStream();
+        System.out.println("发送的报文：");
+        System.out.println(sendStr.toString());
+        output.write(sendStr.toString().getBytes());
+        output.flush();
+        output.close();
+        // 获取返回的数据
+        InputStream inputStream = servletConnection.getInputStream();
+        reader = new BufferedReader(new InputStreamReader(inputStream));
+        while ((strMessage = reader.readLine()) != null) {
+           buffer.append(strMessage);
+        }
+        System.out.println("接收返回值:" + buffer);
+    } catch (java.net.ConnectException e) {
+        throw new Exception();
+    } finally {
+        if (reader != null) {
+           reader.close();
+        }
+    }
+ }
+
+ 
+
+代码1.2为服务器接口，接收到客户端的信息解析验证，并返回需要的信息。
+
+1.2响应程序代码
+
+public class TestTransfers extends HttpServlet {
+     
+    private static final long serialVersionUID = 1L;
+ 
+    protected void doGet(HttpServletRequest request,
+           HttpServletResponse response) throws ServletException, IOException {
+    }
+ 
+    protected void doPost(HttpServletRequest request,
+           HttpServletResponse response) throws ServletException, IOException {
+ 
+       //判断请求报文是否来自代维系统的ip地址
+       String ip = request.getRemoteHost();
+// 获取收到的报文
+        BufferedReader reader = request.getReader();
+         String line = "";
+        StringBuffer inputString = new StringBuffer();
+        while ((line = reader.readLine()) != null) {
+        inputString.append(line);
+        }
+        
+       //如有必要，可以在报文中增加其他验证和加密的参数
+       //解析获取到的报文，根据ip地址、其他验证、加密等等来判断请求报文的服务器是否有权限
+      
+       //如果请求验证合格，则根据请求的参数装配返回的报文
+ 
+       // 要返回的报文
+       StringBuffer resultBuffer = new StringBuffer();
+       resultBuffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+       resultBuffer.append("<report_data>");
+       resultBuffer.append("<respon_req>953947334</respon_req>");
+       resultBuffer.append("<respon_time>20120402113943</respon_time>");
+       resultBuffer.append("<result>");
+       resultBuffer.append("<id>0000</id>");
+       resultBuffer.append("<comment>成功</comment>");
+       resultBuffer.append("</result>");
+       resultBuffer.append("<items>");
+       resultBuffer.append("<item>");
+       resultBuffer.append("<county>长治县</county>");
+       resultBuffer.append("<company>铁通</company>");
+       resultBuffer.append("<speciality>线路</speciality>");
+       resultBuffer.append("<personnel>王加和</personnel>");
+       resultBuffer.append("<begin_time>20120301000000</begin_time>");
+       resultBuffer.append("<end_time>20120331235959</end_time>");
+       resultBuffer.append("<plan_quantity>50</plan_quantity>");
+       resultBuffer.append("<checkout_quantity>40</checkout_quantity>");
+       resultBuffer.append("<patrol_rate>0.80</patrol_rate>");
+       resultBuffer.append("</item>");
+       //......
+       //......
+       //......
+       //循环组装响应的报文
+      
+       resultBuffer.append("</items>");
+       resultBuffer.append("</report_data>");
+ 
+       // 设置发送报文的格式
+       response.setContentType("text/xml");
+       response.setCharacterEncoding("UTF-8");
+ 
+       PrintWriter out = response.getWriter();
+       out.println(resultBuffer.toString());
+       out.flush();
+       out.close();
+    }
+}
