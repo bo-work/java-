@@ -1,0 +1,19 @@
+stringbuffer.append()
+
+
+
+
+
+
+
+
+
+
+append用法
+stringbuffer 有append()方法 
+Stringbuffer其实是动态字符串数组 
+append()是往动态字符串数组添加，跟“xxxx”+“yyyy”相当那个‘+’号 
+跟String不同的是Stringbuffer是放一起的 
+String1+String2 和Stringbuffer1.append("yyyy")虽然打印效果一样，但在内存中表示却不一样 
+String1+String2 存在于不同的两个地址内存 
+Stringbuffer1.append(Stringbuffer2)放在一起 
