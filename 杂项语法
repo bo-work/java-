@@ -1,6 +1,7 @@
 stringbuffer.append()
+取整操作
 arrary[]
-
+数字处理
 
 
 
@@ -16,6 +17,24 @@ append()是往动态字符串数组添加，跟“xxxx”+“yyyy”相当那个
 String1+String2 和Stringbuffer1.append("yyyy")虽然打印效果一样，但在内存中表示却不一样 
 String1+String2 存在于不同的两个地址内存 
 Stringbuffer1.append(Stringbuffer2)放在一起 
+
+取整————————————————————————————————————————————————————————————————————————————-————
+舍掉小数取整:Math.floor(2)=2
+舍掉小数取整:Math.floor(2.1)=2
+舍掉小数取整:Math.floor(2.5)=2
+舍掉小数取整:Math.floor(2.9)=2
+负数舍掉小数取整:Math.floor(-2)=-2
+负数舍掉小数取整:Math.floor(-2.1)=-3
+负数舍掉小数取整:Math.floor(-2.5)=-3
+负数舍掉小数取整:Math.floor(-2.9)=-3
+见小数取整:Math.ceil(2)=2
+见小数取整:Math.ceil(2.1)=3
+见小数取整:Math.ceil(2.5)=3
+见小数取整:Math.ceil(2.9)=3
+负数见小数取整:Math.ceil(-2)=-2
+负数见小数取整:Math.ceil(-2.1)=-2
+负数见小数取整:Math.ceil(-2.5)=-2
+负数见小数取整:Math.ceil(-2.9)=-2
 
 动态数组——————————————————————————————————————————————————————————————————————————————————————————————
 声明：
@@ -122,3 +141,198 @@ java.util.Arrays 类能方便地操作数组，它提供的所有方法都是静
 将指定的 int 值分配给指定 int 型数组指定范围中的每个元素。同样的方法适用于所有的其他基本数据类型（Byte，short，Int等）。
 4 	public static void sort(Object[] a)
 对指定对象数组根据其元素的自然顺序进行升序排列。同样的方法适用于所有的其他基本数据类型（Byte，short，Int等）。
+
+获取多维数组的尺寸
+data.length是数组一维长度，挑选其中一行.length即为二维长度
+public class Main {
+   public static void main(String args[]) {
+      String[][] data = new String[2][5];
+      System.out.println("第一维数组长度: " + data.length);
+      System.out.println("第二维数组长度: " + data[0].length);
+   }
+}
+
+
+数字处理————————————————————————————————————————————————————————————————————————————————————--————----------------
+1.DecimalForamt类
+
+数字格式化的模板方法，通常有如下两种形式;哪一种结果都一样的…
+
+    /**
+     * 数字格式化第一种方法 
+     * 第一个参数特殊字符的模板 
+     * 第二个是要格式化的字符
+     */
+    public static void formatNumberFrist(String pattern, double value) {
+        DecimalFormat format = new DecimalFormat(pattern);
+        String output = format.format(value);
+        System.out.println(pattern + "===" + output);
+    }
+
+    /**
+     * 数字格式化第二种方法
+     */
+    public static void formatNumberSecond(String pattern, double value) {
+        DecimalFormat format = new DecimalFormat();
+        format.applyPattern(pattern);
+        String output = format.format(value);
+        System.out.println(pattern + "===" + output);
+    }
+
+
+通常使用的特殊字符有如下：0，#，.,%,\u2030,\u00A4等，不一个个介绍了看代码吧
+
+
+        // #表示数字的一位阿拉伯数字，如果该位存在数字,就显示数字, 如果该位不存在数字，就不显示数字
+        formatNumberFrist("###", 12);// --->###===12
+        formatNumberFrist("###", 123);// --->###===123
+        formatNumberFrist("###", 1234);// --->###===1234
+
+        // 0表示数字的一位阿拉伯数字，如果该位存在数字,就显示数字, 如果该位不存在数字，就显示0
+        formatNumberFrist("000", 12);// --->000===012
+        formatNumberFrist("000", 123);// --->000===123
+        formatNumberFrist("000", 1234);// --->000===1234
+
+        // 将小数点后格式化为两位数
+        // .代表小数分隔符或货币小数分隔符
+        formatNumberFrist("####.##", 123.456789);// ####.##===123.46
+        formatNumberFrist("####.00", 123.456789);// ####.00===123.46
+        formatNumberFrist("0000.##", 123.4);// --->0000.##===0123.4
+        formatNumberFrist("0000.00", 123.4);// --->0000.00===0123.40
+
+        // %表示若放置在数字的前缀或后缀,将数字乘以100显示
+        formatNumberFrist("#.###%", 0.789);// --->#.###%===78.9%
+        formatNumberFrist("%#.###", 0.789);// --->%#.###===%78.9
+
+        // \u2030放置在数字的前缀或后缀，将数字乘以1000显示
+        formatNumberFrist("0.00\u2030", 0.789);// --->0.00‰===789.00‰
+        formatNumberFrist("\u20300.00", 0.789);// --->‰0.00===‰789.00
+
+        // \u00A4放置在数字的前缀或后缀，作为货币符号显示
+        formatNumberFrist("##\u00A4", 1.23);// --->##¤===1￥
+        // ,表示分组分隔符,分组分隔符的分组大小等于
+        // 最后一个分隔符和整数结尾之间的间隔才是使用的分组大小(不管有多少个分隔符)
+        // 比如下面这个数100000000的分组大小就是3，因为,和.之间只有3个数
+        formatNumberFrist("##,#,###", 100000000);
+
+2.Math类
+
+
+        // Math.ceil(Double a)返回大于等于(>=a)的最大整数
+        System.out.println(Math.ceil(1.3));// 2.0
+
+        // Math.floor(Double a)返回小于等于(<=a)的最大整数
+        System.out.println(Math.floor(1.3));// 1.0
+
+        // Math.rint(Double a)返回离a最近的整数，如果同为整数且同样接近则取偶数
+        System.out.println(Math.rint(0.5));// 0.0
+        System.out.println(Math.rint(1.5));// 2.0
+        System.out.println(Math.rint(0.3));// 0.0
+
+        // Math.round(Double a)将参数(a+0.5)之后向下取整整数，
+        System.out.println(Math.round(1.4));// 1 加上0.5之后变成1.9向下取整等于1
+        System.out.println(Math.round(1.5));// 1 加上0.5之后变成2向下取整等于2
+        System.out.println(Math.round(1.6));// 2 加上0.5之后变成2.1向下取整等于2
+        System.out.println(Math.round(-1.4));// -1 加上0.5之后变成-0.9向下取整等于-1
+        System.out.println(Math.round(-1.5));// -1 加上0.5之后变成-1向下取整等于-1
+        System.out.println(Math.round(-1.6));// -2 加上0.5之后变成-1.1向下取整等于-2
+
+        // Math.max()取最大值
+        System.out.println(Math.max(1, 2));// 2
+        // Math.min()取最小值
+        System.out.println(Math.min(1, 2));// 2
+        // Math.abs()取绝对值
+        System.out.println(Math.abs(-100));// 100
+
+        // Math.random()产生0~1之间的double型数字
+        System.out.println(Math.random());// 结果等于(0<=Math.random()<1.0)
+
+
+3.Random类
+
+1、Random对象的生成
+Random类包含两个构造方法，下面依次进行介绍：
+public Random()
+
+该构造方法使用一个和当前系统时间对应的相对时间有关的数字作为种子数，然后使用这个种子数构造Random对象。
+public Random(long seed)
+等价于
+Random rnd = new Random();
+rnd.setSeed(seed);
+
+该构造方法可以通过制定一个种子数进行创建。
+
+示例代码：
+
+Random r = new Random();
+
+Random r1 = new Random(10);
+
+再次强调：种子数只是随机算法的起源数字，和生成的随机数字的区间无关。
+上面两种构造方法随便使用任意一个就可以创建对象，没有什么区别,但是Random对象随机生成每一个数字几率是均等的，下面看代码
+
+        Random r = new Random();
+
+        // nextDouble()生成[0,1.0)区间的小数
+        System.out.println(r.nextDouble());
+
+        // 生成[0,5.0)区间的小数
+        System.out.println(r.nextDouble() * 5);
+
+        // 生成[1,2.5)区间的小数
+        System.out.println(r.nextDouble() * 1.5 + 1);
+
+        // nextFloat()生成[0.0f,1.0f)区间的小数
+        System.out.println(r.nextFloat());
+
+        // r.nextInt()生成任意整数
+        System.out.println(r.nextInt());
+
+        // r.nextInt(n)生成[0,n)区间的整数
+        System.out.println(r.nextInt(10));
+        System.out.println(Math.abs(r.nextInt() % 10));
+        // 首先调用nextInt()方法生成一个任意的int数字，该数字和10取余以后生成的数字区间为(-10,10)
+        // 然后再对该区间求绝对值，则得到的区间就是[0,10)了。
+
+        // r.nextBoolean()生成一个任意boolean
+        System.out.println(r.nextBoolean());
+
+        // r.nextLong()生成一个长整形
+        System.out.println(r.nextLong());
+
+
+相同种子数的Random对象，相同次数生成的随机数字是完全相同的:
+
+                        Random r1 = new Random(10);
+                        Random r2 = new Random(10);
+                        for(int i = 0;i < 2;i++){
+                                 System.out.println(r1.nextInt());
+                                 System.out.println(r2.nextInt());
+                        }
+
+
+
+在该代码中，对象r1和r2使用的种子数都是10，则这两个对象相同次数生成的随机数是完全相同的。
+如果想避免出现随机数字相同的情况，则需要注意，无论项目中需要生成多少个随机数字，都只使用一个Random对象即可。
+
+4.BigDecimal类
+
+这个类专门用于商业大数字运算(加减乘除)
+
+        BigDecimal m1 = new BigDecimal(12);
+        BigDecimal m2 = new BigDecimal(5);
+        // 加
+        System.out.println(m1.add(m2));// 17
+        // 减
+        System.out.println(m1.subtract(m2));// 7
+        // 乘
+        System.out.println(m1.multiply(m2));// 60
+        // 除
+        System.out.println(m1.divide(m2, 2,BigDecimal.ROUND_HALF_UP));//2.40
+
+
+
+其中divide(BigDecimal divisor,int scale,int mode)参数含义如下：
+scale: 商的小数点后的位数；
+mode:近似处理模式，这里BigDecimal.ROUND_HALF_UP表示四舍五入操作；
+
